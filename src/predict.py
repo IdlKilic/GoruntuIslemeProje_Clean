@@ -6,7 +6,7 @@ import json
 
 
 def load_model_config():
-    """Model konfigürasyonunu ve karakter haritasını yükle"""
+
     model_config_path = os.path.join("./model", "model_config.json")
     char_map_path = os.path.join("./model", "char_map.json")
 
@@ -26,32 +26,27 @@ def load_model_config():
 
 
 def predict_image(model_path, image_path):
-    """Verilen görüntüden el yazısını tahmin et"""
+
     if not os.path.exists(model_path):
         raise FileNotFoundError(f"Model dosyası bulunamadı: {model_path}")
 
     if not os.path.exists(image_path):
         raise FileNotFoundError(f"Görüntü dosyası bulunamadı: {image_path}")
 
-    # Model konfigürasyonunu ve karakter haritasını yükle
     model_config, char_map = load_model_config()
     max_length = model_config["max_length"]
     vocab_size = model_config["vocab_size"]
 
-    # Modeli yükle
     model = load_model(model_path)
 
-    # Görüntüyü yükle ve ön işle
     image = Image.open(image_path).convert("L").resize((256, 64))
     image_array = np.array(image) / 255.0
-    image_array = np.expand_dims(image_array, axis=0)  # Batch boyutunu ekle
-    image_array = np.expand_dims(image_array, axis=-1)  # Kanal boyutunu ekle
+    image_array = np.expand_dims(image_array, axis=0) 
+    image_array = np.expand_dims(image_array, axis=-1)  
 
-    # Tahmin yap
     prediction = model.predict(image_array)
     predicted_indices = np.argmax(prediction, axis=-1)[0]
 
-    # Tahmin edilen indeksleri karakterlere dönüştür
     index_to_char = {int(k): v for k, v in char_map["index_to_char"].items()}
     predicted_text = "".join([index_to_char.get(idx, "") for idx in predicted_indices if idx > 0])
 
