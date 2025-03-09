@@ -1,0 +1,6 @@
+tensorflow-macos
+numpy
+Pillow
+scikit-learn
+tk
+python-docx
